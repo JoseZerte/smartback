@@ -58,4 +58,6 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private Set<Preferencia> preferencias = new HashSet<>();
+
+
 }
