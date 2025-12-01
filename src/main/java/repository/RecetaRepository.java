@@ -7,5 +7,10 @@ import java.util.List;
 
 @Repository
 public interface RecetaRepository extends JpaRepository<Receta, Integer> {
-    List<Receta> findByUsuarioId(int usuarioId); // ejemplo: todas las recetas de un usuario
+    List<Receta> findByUsuarioId(int usuarioId);
+    List<Receta> findByCategoriaNombre(String nombre);
+    List<Receta> findByIngredientesNombre(String nombre);
+    List<Receta> findByPreferenciasNombre(String nombre);
+
+
 }

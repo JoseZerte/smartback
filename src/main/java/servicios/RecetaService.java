@@ -36,4 +36,24 @@ public class RecetaService {
     public void eliminar(int id) {
         recetaRepository.deleteById(id);
     }
+
+    public List<Receta> buscarRecetasConFiltros(String categoria, String ingrediente, String preferencia) {
+
+        if (categoria != null) {
+            return recetaRepository.findByCategoriaNombre(categoria);
+        }
+
+        if (ingrediente != null) {
+            return recetaRepository.findByIngredientesNombre(ingrediente);
+        }
+
+        if (preferencia != null) {
+            return recetaRepository.findByPreferenciasNombre(preferencia);
+        }
+
+        return recetaRepository.findAll();
+
+    }
+
+
 }
