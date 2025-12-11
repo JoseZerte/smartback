@@ -1,0 +1,59 @@
+package org.example.smartback.servicios;
+
+import org.example.smartback.model.Receta;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.example.smartback.repository.RecetaRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class RecetaService {
+
+    @Autowired
+    private RecetaRepository recetaRepository;
+
+    public Receta guardar(Receta receta) {
+        if (receta.getFecha_creacion() == null) {
+            receta.setFecha_creacion(LocalDateTime.now());
+        }
+        return recetaRepository.save(receta);
+    }
+
+    public Receta obtenerPorId(int id) {
+        return recetaRepository.findById(id).orElse(null);
+    }
+
+    public List<Receta> listar() {
+        return recetaRepository.findAll();
+    }
+
+    public List<Receta> listarPorUsuario(int usuarioId) {
+        return recetaRepository.findByUsuarioId(usuarioId);
+    }
+
+    public void eliminar(int id) {
+        recetaRepository.deleteById(id);
+    }
+
+    public List<Receta> buscarRecetasConFiltros(String categoria, String ingrediente, String preferencia) {
+
+        if (categoria != null) {
+            return recetaRepository.findByCategoriaNombre(categoria);
+        }
+
+        if (ingrediente != null) {
+            return recetaRepository.findByIngredientesNombre(ingrediente);
+        }
+
+        if (preferencia != null) {
+            return recetaRepository.findByPreferenciasNombre(preferencia);
+        }
+
+        return recetaRepository.findAll();
+
+    }
+
+
+}
