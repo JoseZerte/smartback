@@ -1,20 +1,17 @@
 package org.example.smartback.DTOs;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsuarioDTO {
-    private Integer id;
-    private String nombre;
+public class LoginRequest {
+
     private String email;
-    private String avatar;
 
+    @JsonProperty("contrasena")
     private String password;
-
-    private List<String> preferencias;
 }

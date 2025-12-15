@@ -1,8 +1,10 @@
 package org.example.smartback.servicios;
+
 import org.example.smartback.model.Usuario;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.example.smartback.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -12,25 +14,34 @@ public class UsuarioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // crear o actualizar usuario
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
     public Usuario guardar(Usuario usuario) {
+
+        String contrasenaPlana = usuario.getContraseña();
+
+        if (contrasenaPlana != null && !contrasenaPlana.startsWith("$2a$")) {
+
+            String contrasenaCifrada = passwordEncoder.encode(contrasenaPlana);
+
+            usuario.setContraseña(contrasenaCifrada);
+        } else if (contrasenaPlana == null || contrasenaPlana.isEmpty()) {
+        }
+
         return usuarioRepository.save(usuario);
     }
 
-    //  usuario por id
     public Usuario obtenerPorId(int id) {
         return usuarioRepository.findById(id).orElse(null);
     }
 
-    // esto va a listar los usuarios
     public List<Usuario> listar() {
         return usuarioRepository.findAll();
     }
 
-    //elimina usuario
     public void eliminar(int id) {
         usuarioRepository.deleteById(id);
     }
 }
-
-

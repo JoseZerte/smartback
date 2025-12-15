@@ -16,11 +16,11 @@ public class ColeccionReceta {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_collection")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_collection", nullable = false)
     private Coleccion coleccion;
 
-    @ManyToOne
-    @JoinColumn(name = "id_receta")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_receta", nullable = false)
     private Receta receta;
 }

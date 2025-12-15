@@ -14,13 +14,13 @@ public class EstadisticasController {
     @Autowired
     private EstadisticasService estadisticasService;
 
-    // 1️⃣ Top 5 ingredientes
+
     @GetMapping("/ingredientes")
     public List<Map<String, Object>> topIngredientes() {
         return estadisticasService.top5Ingredientes();
     }
 
-    // 2️⃣ Usuario con receta más guardada
+
     @GetMapping("/usuarioPopular")
     public Map<String, Object> usuarioPopular() {
         return estadisticasService.usuarioPopular();

@@ -24,9 +24,7 @@ public class EstadisticasService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // 1️⃣ Top 5 ingredientes más usados
     public List<Map<String, Object>> top5Ingredientes() {
-        // contamos cuántas recetas usan cada ingrediente
         List<Ingrediente> todos = ingredienteRepository.findAll();
 
         List<Map<String, Object>> resultado = todos.stream()
@@ -43,15 +41,12 @@ public class EstadisticasService {
         return resultado;
     }
 
-    // 2️⃣ Usuario con receta más veces marcada como favorita
     public Map<String, Object> usuarioPopular() {
         List<MeGusta> todosLikes = meGustaRepository.findAll();
 
-        // contar likes por usuario
         Map<Usuario, Long> contador = todosLikes.stream()
                 .collect(Collectors.groupingBy(MeGusta::getUsuario, Collectors.counting()));
 
-        // encontrar usuario con más likes
         Usuario topUsuario = contador.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)

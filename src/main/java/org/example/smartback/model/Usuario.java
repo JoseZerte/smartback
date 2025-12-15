@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -16,13 +19,10 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(nullable = false)
     private String nombre;
-
-    @Column(nullable = false)
-    private String apellido;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -30,22 +30,26 @@ public class Usuario {
     @Column(nullable = false)
     private String contraseña;
 
-    @Column(nullable = false)
     private String avatar;
 
-    @Column(nullable = false)
-    private String fecha_registr;
-
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Receta> recetas = new HashSet<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<ListaCompra> listasCompra = new HashSet<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Coleccion> colecciones = new HashSet<>();
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Historial> historial = new HashSet<>();
 
     @ManyToMany
@@ -54,10 +58,8 @@ public class Usuario {
             joinColumns = @JoinColumn(name = "usuario_id"),
             inverseJoinColumns = @JoinColumn(name = "receta_id")
     )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Receta> megusta = new HashSet<>();
-
-    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
-    private Set<Preferencia> preferencias = new HashSet<>();
-
 
 }

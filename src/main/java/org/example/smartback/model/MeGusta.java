@@ -1,20 +1,20 @@
 package org.example.smartback.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
-@Entity
-@Table(name = "megusta")
 @NoArgsConstructor
 @AllArgsConstructor
+@Entity
+@Table(name = "megusta")
 public class MeGusta {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)

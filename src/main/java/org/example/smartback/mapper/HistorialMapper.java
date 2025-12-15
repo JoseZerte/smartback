@@ -1,9 +1,12 @@
 package org.example.smartback.mapper;
 
+import org.example.smartback.DTOs.HistorialCocinaRequest;
 import org.example.smartback.DTOs.HistorialDTO;
 import org.example.smartback.model.Historial;
 import org.example.smartback.model.Receta;
 import org.example.smartback.model.Usuario;
+
+import java.time.LocalDateTime;
 
 public class HistorialMapper {
 
@@ -26,5 +29,20 @@ public class HistorialMapper {
         historial.setComentario(dto.getComentario());
         return historial;
     }
-}
 
+
+    public static Historial toEntity(HistorialCocinaRequest request,
+                                     Usuario usuario,
+                                     Receta receta,
+                                     LocalDateTime fechaCocina) {
+        Historial historial = new Historial();
+        historial.setUsuario(usuario);
+        historial.setReceta(receta);
+
+        historial.setFecha_cocinado(fechaCocina);
+
+        historial.setComentario(null);
+
+        return historial;
+    }
+}

@@ -5,16 +5,19 @@ import org.example.smartback.mapper.RecetaMapper;
 import org.example.smartback.model.Categoria;
 import org.example.smartback.model.Receta;
 import org.example.smartback.model.Usuario;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.example.smartback.servicios.RecetaService;
-import org.example.smartback.servicios.MeGustaService;
-import org.example.smartback.servicios.UsuarioService;
 import org.example.smartback.servicios.CategoriaService;
+import org.example.smartback.servicios.MeGustaService;
+import org.example.smartback.servicios.RecetaService;
+import org.example.smartback.servicios.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/recetas")
 public class RecetaController {
@@ -31,42 +34,110 @@ public class RecetaController {
     @Autowired
     private CategoriaService categoriaService;
 
-    // POST: agregar receta
     @PostMapping
-    public RecetaDTO crear(@RequestBody RecetaDTO recetaDTO) {
+    public ResponseEntity<RecetaDTO> crear(@RequestBody RecetaDTO recetaDTO) {
+
         Usuario usuario = usuarioService.obtenerPorId(recetaDTO.getUsuarioId());
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
         Categoria categoria = categoriaService.obtenerPorId(recetaDTO.getCategoriaId());
+        if (categoria == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        System.out.println("---- DEBUG CONTROLLER ----");
+        if (recetaDTO.getIngredientes() != null) {
+            System.out.println("Tamaño lista ingredientes: " + recetaDTO.getIngredientes().size());
+        } else {
+            System.out.println("ERROR: La lista de ingredientes es NULL");
+        }
+        System.out.println("--------------------------");
+
         Receta receta = RecetaMapper.toEntity(recetaDTO, usuario, categoria);
-        receta = recetaService.guardar(receta);
-        return RecetaMapper.toDTO(receta);
+
+        Receta recetaGuardada = recetaService.crearRecetaConIngredientes(receta, recetaDTO.getIngredientes());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(RecetaMapper.toDTO(recetaGuardada));
     }
 
-    // GET: buscar recetas con filtros
     @GetMapping
-    public List<RecetaDTO> buscar(
+    public ResponseEntity<List<RecetaDTO>> buscar(
             @RequestParam(required = false) String categoria,
             @RequestParam(required = false) String ingrediente,
-            @RequestParam(required = false) String preferencia
+            @RequestParam(required = false) String tipoDieta
     ) {
-        List<Receta> recetas = recetaService.buscarRecetasConFiltros(categoria, ingrediente, preferencia);
-        return recetas.stream()
+        List<Receta> recetas = recetaService.buscarRecetasConFiltros(categoria, ingrediente, tipoDieta);
+
+        List<RecetaDTO> dtoList = recetas.stream()
                 .map(RecetaMapper::toDTO)
                 .collect(Collectors.toList());
+        return ResponseEntity.ok(dtoList);
     }
 
-    // GET: obtener receta por ID
     @GetMapping("/{id}")
-    public RecetaDTO obtener(@PathVariable int id) {
+    public ResponseEntity<RecetaDTO> obtenerPorId(@PathVariable int id) {
         Receta receta = recetaService.obtenerPorId(id);
-        return RecetaMapper.toDTO(receta);
+        if (receta == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(RecetaMapper.toDTO(receta));
     }
 
-    // POST: marcar receta como favorita
     @PostMapping("/{id}/favorito")
-    public String marcarFavorito(
+    public ResponseEntity<String> marcarFavorito(
             @PathVariable("id") int recetaId,
             @RequestParam("usuarioId") int usuarioId
     ) {
-        return meGustaService.marcarComoFavorita(usuarioId, recetaId);
+        String resultado = meGustaService.marcarComoFavorita(usuarioId, recetaId);
+        return ResponseEntity.ok(resultado);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<RecetaDTO> actualizar(@PathVariable int id, @RequestBody RecetaDTO recetaDTO) {
+        Receta existente = recetaService.obtenerPorId(id);
+        if (existente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        Usuario usuario = usuarioService.obtenerPorId(recetaDTO.getUsuarioId());
+        Categoria categoria = categoriaService.obtenerPorId(recetaDTO.getCategoriaId());
+
+        if (usuario == null || categoria == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        Receta actualizada = RecetaMapper.toEntity(recetaDTO, usuario, categoria);
+        actualizada.setId(id);
+        actualizada.setFecha_creacion(existente.getFecha_creacion());
+
+        Receta resultado = recetaService.actualizar(actualizada);
+        return ResponseEntity.ok(RecetaMapper.toDTO(resultado));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminar(@PathVariable int id) {
+        Receta existente = recetaService.obtenerPorId(id);
+        if (existente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        recetaService.eliminar(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/usuario/{usuarioId}/favoritas")
+    public ResponseEntity<List<RecetaDTO>> listarFavoritas(@PathVariable int usuarioId) {
+        List<Receta> favoritas = meGustaService.obtenerRecetasFavoritasPorUsuario(usuarioId);
+
+        if (favoritas.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        List<RecetaDTO> dtoList = favoritas.stream()
+                .map(RecetaMapper::toDTO)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtoList);
     }
 }

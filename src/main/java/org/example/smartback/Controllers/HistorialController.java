@@ -1,5 +1,6 @@
 package org.example.smartback.Controllers;
 
+import org.example.smartback.DTOs.HistorialCocinaRequest;
 import org.example.smartback.DTOs.HistorialDTO;
 import org.example.smartback.mapper.HistorialMapper;
 import org.example.smartback.model.Historial;
@@ -27,17 +28,28 @@ public class HistorialController {
     @Autowired
     private RecetaService recetaService;
 
-    // POST: registrar una receta cocinada
+
     @PostMapping
-    public HistorialDTO registrar(@RequestBody HistorialDTO historialDTO) {
+    public HistorialDTO registrar(@RequestBody HistorialCocinaRequest historialDTO) {
+
+
         Usuario usuario = usuarioService.obtenerPorId(historialDTO.getUsuarioId());
         Receta receta = recetaService.obtenerPorId(historialDTO.getRecetaId());
-        Historial historial = HistorialMapper.toEntity(historialDTO, usuario, receta);
+
+
+        Historial historial = HistorialMapper.toEntity(
+                historialDTO,
+                usuario,
+                receta,
+                historialDTO.getFechaCocina()
+        );
+
+
         historial = historialService.guardar(historial);
         return HistorialMapper.toDTO(historial);
     }
 
-    // GET: consultar historial de un usuario
+
     @GetMapping
     public List<HistorialDTO> obtenerPorUsuario(@RequestParam int usuarioId) {
         List<Historial> historialList = historialService.listarPorUsuario(usuarioId);

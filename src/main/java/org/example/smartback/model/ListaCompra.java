@@ -3,7 +3,9 @@ package org.example.smartback.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,6 +23,8 @@ public class ListaCompra {
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Usuario usuario;
 
     @Column(nullable = false)
@@ -30,5 +34,7 @@ public class ListaCompra {
     private LocalDateTime fecha_creacion;
 
     @OneToMany(mappedBy = "listaCompra", cascade = CascadeType.ALL)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<ItemListaCompra> items = new HashSet<>();
 }
