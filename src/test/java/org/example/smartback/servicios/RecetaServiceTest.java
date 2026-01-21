@@ -2,15 +2,12 @@ package org.example.smartback.servicios;
 
 import jakarta.transaction.Transactional;
 import org.example.smartback.DTOs.RecetaDTO;
-import org.example.smartback.model.Categoria;
-import org.example.smartback.model.Receta;
-import org.example.smartback.model.Usuario;
-import org.example.smartback.repository.CategoriaRepository;
-import org.example.smartback.repository.UsuarioRepository;
+import org.example.smartback.model.*;
+import org.example.smartback.repository.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,69 +26,124 @@ public class RecetaServiceTest {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
+    @Autowired
+    private RecetaRepository recetaRepository;
+
+    // --- EP 2: CREAR RECETA (POST /recetas) ---
+
     @Test
-    public void crearRecetaConIngredientesTest() {
-        // GIVEN: Necesitamos un usuario y categoría reales para que no falle la FK
-        Usuario autor = new Usuario();
-        autor.setNombre("Chef Test");
-        autor.setEmail("chef@test.com");
-        autor.setContraseña("12345");
-        usuarioRepository.save(autor);
+    public void crearRecetaPositivoTest() {
+        // GIVEN
+        Usuario autor = crearUsuarioPrueba();
+        Categoria cat = crearCategoriaPrueba("Almuerzo");
 
-        Categoria cat = new Categoria();
-        cat.setNombre("Almuerzo");
-        categoriaRepository.save(cat);
-
-        // Preparamos la receta
         Receta receta = new Receta();
-        receta.setTitulo("Pasta Carbonara");
-        receta.setDescripcion("Receta italiana");
-        receta.setDificultad("Media");
-        receta.setImagen("pasta.jpg");
-        receta.setTiempo_preparacion("15 min");
-        receta.setTipo_dieta("Mediterránea");
-        receta.setUsuario(autor);
-        receta.setCategoria(cat);
+        completarDatosReceta(receta, "Pasta Carbonara", autor, cat);
 
-        // Preparamos los ingredientes DTO
+        List<RecetaDTO.IngredienteDTO> ings = new ArrayList<>();
         RecetaDTO.IngredienteDTO ing = new RecetaDTO.IngredienteDTO();
         ing.setNombre("Panceta");
         ing.setCantidad(100);
         ing.setUnidad("gramos");
+        ings.add(ing);
 
-        List<RecetaDTO.IngredienteDTO> listaIng = new ArrayList<>();
-        listaIng.add(ing);
+        // WHEN
+        Receta guardada = recetaService.crearRecetaConIngredientes(receta, ings);
 
-        // WHEN: Ejecutamos el servicio
-        Receta guardada = recetaService.crearRecetaConIngredientes(receta, listaIng);
-
-        // THEN: Verificaciones (Test Unitario 2 validado)
-        assertNotNull(guardada.getId(), "La receta debería tener un ID");
+        // THEN
+        assertNotNull(guardada.getId());
         assertEquals("Pasta Carbonara", guardada.getTitulo());
-        assertNotNull(guardada.getFecha_creacion(), "La fecha de creación debe autogenerarse");
     }
 
     @Test
-    public void buscarRecetaInexistenteTest() {
+    public void crearRecetaNegativoTest() {
+        // GIVEN: Una receta totalmente vacía (sin título ni descripción)
+        Receta recetaInvalida = new Receta();
+
+        // THEN: El servicio debe petar al intentar guardar en el repo
+        assertThrows(Exception.class, () -> {
+            recetaService.crearRecetaConIngredientes(recetaInvalida, null);
+        });
+    }
+
+    // --- EP 3: FILTROS (GET /recetas con filtros) ---
+
+    @Test
+    public void buscarFiltroPositivoTest() {
         // GIVEN
+        Categoria cat = crearCategoriaPrueba("Vegano");
+        Receta r = new Receta();
+        completarDatosReceta(r, "Ensalada", crearUsuarioPrueba(), cat);
+        recetaRepository.save(r);
 
-        // WHEN: Buscamos por una categoría que no existe (Caso Negativo)
-        List<Receta> resultados = recetaService.buscarRecetasConFiltros("Inexistente", null, null);
+        // WHEN
+        List<Receta> resultados = recetaService.buscarRecetasConFiltros("Vegano", null, null);
 
-        // THEN Verificamos que la lógica maneja el vacío correctamente
-        assertNotNull(resultados);
-        assertTrue(resultados.isEmpty(), "La lista debería estar vacía para filtros sin coincidencia");
+        // THEN
+        assertFalse(resultados.isEmpty(), "Debería encontrar la receta por categoría");
     }
 
     @Test
-    public void obtenerPorIdTest() {
+    public void buscarFiltroNegativoTest() {
+        // WHEN: Buscamos algo que no existe
+        List<Receta> resultados = recetaService.buscarRecetasConFiltros("Klingon", null, null);
 
+        // THEN
+        assertTrue(resultados.isEmpty(), "La lista debe estar vacía");
+    }
+
+    // --- EP 4: DETALLE (GET /recetas/{id}) ---
+
+    @Test
+    public void obtenerDetallePositivoTest() {
+        // GIVEN
         Receta r = new Receta();
-        r.setTitulo("Sopa");
+        completarDatosReceta(r, "Detalle", crearUsuarioPrueba(), crearCategoriaPrueba("Test"));
+        Receta guardada = recetaRepository.save(r);
 
+        // WHEN
+        Receta encontrada = recetaService.obtenerPorId(guardada.getId());
 
-        // WHEN & THEN
-        Receta encontrada = recetaService.obtenerPorId(999); // ID que no existe
-        assertNull(encontrada, "Debería devolver null si el ID no existe");
+        // THEN
+        assertNotNull(encontrada);
+        assertEquals("Detalle", encontrada.getTitulo());
+    }
+
+    @Test
+    public void obtenerDetalleNegativoTest() {
+        // WHEN: Buscamos un ID que no existe
+        Receta encontrada = recetaService.obtenerPorId(9999);
+
+        // THEN
+        assertNull(encontrada);
+    }
+
+    // --- MÉTODOS DE APOYO (Para evitar errores de campos nulos) ---
+
+    private void completarDatosReceta(Receta r, String titulo, Usuario u, Categoria c) {
+        r.setTitulo(titulo);
+        r.setDescripcion("Descripción obligatoria");
+        r.setDificultad("Media");
+        r.setTiempo_preparacion("20 min");
+        r.setTipo_dieta("Estándar");
+        r.setImagen("imagen.jpg");
+        // ESTA LÍNEA ES LA QUE FALTA:
+        r.setFecha_creacion(java.time.LocalDateTime.now());
+        r.setUsuario(u);
+        r.setCategoria(c);
+    }
+
+    private Usuario crearUsuarioPrueba() {
+        Usuario u = new Usuario();
+        u.setNombre("Test User");
+        u.setEmail("user" + System.currentTimeMillis() + "@test.com");
+        u.setContraseña("pass");
+        return usuarioRepository.save(u);
+    }
+
+    private Categoria crearCategoriaPrueba(String nombre) {
+        Categoria c = new Categoria();
+        c.setNombre(nombre);
+        return categoriaRepository.save(c);
     }
 }

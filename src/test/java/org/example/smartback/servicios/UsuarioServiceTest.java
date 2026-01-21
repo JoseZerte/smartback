@@ -77,4 +77,39 @@ public class UsuarioServiceTest {
         // Usamos >= 2 por si ya hay datos previos en la BD de pruebas
         assertTrue(lista.size() >= 2, "La lista debería tener al menos 2 usuarios");
     }
+
+
+    @Test
+    public void guardarUsuarioDuplicadoTest() {
+        // GIVEN: Registramos un usuario inicial
+        Usuario u1 = new Usuario();
+        u1.setNombre("User1");
+        u1.setEmail("duplicado@mail.com");
+        u1.setContraseña("pass123");
+        service.guardar(u1);
+
+        // WHEN: Intentamos registrar otro con el mismo email (caso negativo)
+        Usuario u2 = new Usuario();
+        u2.setNombre("User2");
+        u2.setEmail("duplicado@mail.com"); // Email idéntico
+        u2.setContraseña("otraPass");
+
+        // THEN: El sistema debería lanzar una excepción de integridad de datos
+        assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> {
+            service.guardar(u2);
+        }, "Debería fallar porque el email debe ser único en la base de datos");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

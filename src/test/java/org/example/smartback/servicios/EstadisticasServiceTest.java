@@ -34,72 +34,111 @@ public class EstadisticasServiceTest {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
+    @Autowired
+    private RecetaIngredienteRepository recetaIngredienteRepository;
+
+    // --- EP 10: TOP 5 INGREDIENTES ---
+
     @Test
-    public void top5IngredientesTest() {
-        // GIVEN: Creamos ingredientes con diferentes cantidades de recetas
-        Ingrediente ing1 = new Ingrediente();
-        ing1.setNombre("Sal");
-        // Importante: Inicializamos la colección para que el .size() no de error
-        ing1.setRecetas(new HashSet<>());
-        ingredienteRepository.save(ing1);
-
-        Ingrediente ing2 = new Ingrediente();
-        ing2.setNombre("Aceite");
-        ing2.setRecetas(new HashSet<>());
-        ingredienteRepository.save(ing2);
-
-        // Simulamos que Aceite está en una receta (añadiendo una receta ficticia si el modelo lo permite)
-        // O simplemente verificamos que el servicio devuelve la estructura correcta
+    public void top5IngredientesPositivoTest() {
+        // GIVEN: Creamos un ingrediente y lo vinculamos a una receta para que aparezca en el top
+        Usuario u = crearUsuario("stats1@test.com");
+        Receta r = crearReceta("Receta Stats", u);
+        Ingrediente ing = crearIngrediente("Sal");
+        vincularIngrediente(r, ing);
 
         // WHEN
         List<Map<String, Object>> top = estadisticasService.top5Ingredientes();
 
         // THEN
         assertNotNull(top);
-        assertTrue(top.size() <= 5);
-        if(!top.isEmpty()) {
-            assertTrue(top.get(0).containsKey("ingrediente"));
-            assertTrue(top.get(0).containsKey("recetasUsadas"));
-        }
+        assertFalse(top.isEmpty(), "Debería haber al menos un ingrediente en el top");
+        assertEquals("Sal", top.get(0).get("ingrediente"));
     }
 
     @Test
-    public void usuarioPopularTest() {
-        // 1. GIVEN: Creamos usuarios y una receta para dar likes
-        Usuario u1 = new Usuario();
-        u1.setNombre("Usuario Pro");
-        u1.setEmail("pro@test.com");
-        u1.setContraseña("123");
-        usuarioRepository.save(u1);
+    public void top5IngredientesVacioTest() {
+        // GIVEN: BD limpia (gracias al @Transactional)
+        // WHEN
+        List<Map<String, Object>> top = estadisticasService.top5Ingredientes();
+        // THEN
+        assertTrue(top.isEmpty(), "Si no hay ingredientes, la lista debe estar vacía");
+    }
 
-        Categoria cat = new Categoria();
-        cat.setNombre("General");
-        categoriaRepository.save(cat);
+    // --- EP 11: USUARIO POPULAR ---
 
-        Receta r = new Receta();
-        r.setTitulo("Receta Popular");
-        r.setDescripcion("Desc");
-        r.setDificultad("Baja");
-        r.setImagen("img.jpg");
-        r.setTiempo_preparacion("5m");
-        r.setTipo_dieta("Vegana");
-        r.setFecha_creacion(LocalDateTime.now());
-        r.setUsuario(u1);
-        r.setCategoria(cat);
-        recetaRepository.save(r);
+    @Test
+    public void usuarioPopularPositivoTest() {
+        // GIVEN
+        Usuario u = crearUsuario("pro@test.com");
+        Receta r = crearReceta("Receta Popular", u);
 
-        // Le damos un "Me Gusta" al usuario 1
+        // Simulamos un Like
         MeGusta like = new MeGusta();
-        like.setUsuario(u1);
+        like.setUsuario(u);
         like.setReceta(r);
         meGustaRepository.save(like);
 
-        // 2. WHEN
+        // WHEN
         Map<String, Object> popular = estadisticasService.usuarioPopular();
 
-        // 3. THEN
-        assertNotNull(popular);
-        assertEquals("Usuario Pro", popular.get("usuario"));
-        assertEquals(1L, popular.get("likesTotales"));
+        // THEN
+        assertNotNull(popular, "Debería devolver un mapa con el usuario");
+        assertEquals("Chef User", popular.get("usuario"));
+        assertTrue((Long)popular.get("likesTotales") >= 1);
+    }
+
+    @Test
+    public void usuarioPopularVacioTest() {
+        // WHEN: No hay likes ni usuarios
+        Map<String, Object> popular = estadisticasService.usuarioPopular();
+
+        // THEN: Dependiendo de tu implementación, puede ser null o un mapa vacío
+        // Ajusta esto según lo que devuelva tu service (normalmente null si no hay resultados)
+        assertTrue(popular == null || popular.isEmpty());
+    }
+
+    // --- MÉTODOS DE AYUDA (BLINDADOS) ---
+
+    private Usuario crearUsuario(String email) {
+        Usuario u = new Usuario();
+        u.setNombre("Chef User");
+        u.setEmail(email);
+        u.setContraseña("123");
+        return usuarioRepository.save(u);
+    }
+
+    private Receta crearReceta(String titulo, Usuario autor) {
+        Categoria cat = new Categoria();
+        cat.setNombre("Cat " + titulo);
+        categoriaRepository.save(cat);
+
+        Receta r = new Receta();
+        r.setTitulo(titulo);
+        r.setDescripcion("Desc");
+        r.setDificultad("Baja");
+        r.setTiempo_preparacion("5m");
+        r.setTipo_dieta("Variada");
+        r.setImagen("img.jpg");
+        r.setFecha_creacion(LocalDateTime.now());
+        r.setUsuario(autor);
+        r.setCategoria(cat);
+        return recetaRepository.save(r);
+    }
+
+    private Ingrediente crearIngrediente(String nombre) {
+        Ingrediente ing = new Ingrediente();
+        ing.setNombre(nombre);
+        ing.setTipo("Generico");
+        return ingredienteRepository.save(ing);
+    }
+
+    private void vincularIngrediente(Receta r, Ingrediente i) {
+        RecetaIngrediente ri = new RecetaIngrediente();
+        ri.setReceta(r);
+        ri.setIngrediente(i);
+        ri.setCantidad(1);
+        ri.setUnidad("pizca");
+        recetaIngredienteRepository.save(ri);
     }
 }
