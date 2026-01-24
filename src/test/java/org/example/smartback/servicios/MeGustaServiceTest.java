@@ -28,18 +28,18 @@ public class MeGustaServiceTest {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    // --- EP 5: MARCAR FAVORITA (POST /favoritos) ---
+    // MARCAR FAVORITA
 
     @Test
     public void marcarFavoritaPositivoTest() {
         Usuario u = crearUsuario("fan@test.com");
         Receta r = crearReceta("Brownie", u);
 
-        // Caso 1: Marcar por primera vez
+        // marcar por primera vez
         String resultado = meGustaService.marcarComoFavorita(u.getId(), r.getId());
         assertEquals("Receta marcada como favorita", resultado);
 
-        // Verificar que realmente existe en la lista del usuario
+        // verificar que realmente existe en la lista del usuario
         List<MeGusta> favoritos = meGustaService.obtenerFavoritosDeUsuario(u.getId());
         assertEquals(1, favoritos.size());
     }
@@ -49,7 +49,7 @@ public class MeGustaServiceTest {
         Usuario u = crearUsuario("duplicado@test.com");
         Receta r = crearReceta("Tarta", u);
 
-        // Marcar dos veces
+        // marcar dos veces
         meGustaService.marcarComoFavorita(u.getId(), r.getId());
         String resultado2 = meGustaService.marcarComoFavorita(u.getId(), r.getId());
 
@@ -58,12 +58,12 @@ public class MeGustaServiceTest {
 
     @Test
     public void marcarFavoritaInexistenteTest() {
-        // IDs que no existen en la BD
+        // ids que no existen en la bd
         String resultado = meGustaService.marcarComoFavorita(999, 888);
         assertEquals("No encontrado", resultado);
     }
 
-    // --- EP 6: LISTAR FAVORITOS (GET /favoritos/usuario/{id}) ---
+    //LISTAR FAVORITOS
 
     @Test
     public void listarFavoritosVacioTest() {
@@ -74,7 +74,7 @@ public class MeGustaServiceTest {
         assertTrue(favoritos.isEmpty(), "Un usuario nuevo no debería tener favoritos");
     }
 
-    // --- MÉTODOS DE AYUDA (BLINDADOS) ---
+
 
     private Usuario crearUsuario(String email) {
         Usuario u = new Usuario();
@@ -96,7 +96,7 @@ public class MeGustaServiceTest {
         r.setTiempo_preparacion("10 min");
         r.setTipo_dieta("Variada");
         r.setImagen("img.jpg");
-        r.setFecha_creacion(LocalDateTime.now()); // Crucial para que no pete
+        r.setFecha_creacion(LocalDateTime.now());
         r.setUsuario(autor);
         r.setCategoria(cat);
         return recetaRepository.save(r);

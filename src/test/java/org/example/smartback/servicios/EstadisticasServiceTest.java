@@ -37,11 +37,11 @@ public class EstadisticasServiceTest {
     @Autowired
     private RecetaIngredienteRepository recetaIngredienteRepository;
 
-    // --- EP 10: TOP 5 INGREDIENTES ---
+    // TOP 5 INGREDIENTES
 
     @Test
     public void top5IngredientesPositivoTest() {
-        // GIVEN: Creamos un ingrediente y lo vinculamos a una receta para que aparezca en el top
+        // GIVEN: creamos un ingrediente y lo vinculamos a una receta para que aparezca en el top
         Usuario u = crearUsuario("stats1@test.com");
         Receta r = crearReceta("Receta Stats", u);
         Ingrediente ing = crearIngrediente("Sal");
@@ -58,14 +58,14 @@ public class EstadisticasServiceTest {
 
     @Test
     public void top5IngredientesVacioTest() {
-        // GIVEN: BD limpia (gracias al @Transactional)
+        // GIVEN
         // WHEN
         List<Map<String, Object>> top = estadisticasService.top5Ingredientes();
         // THEN
         assertTrue(top.isEmpty(), "Si no hay ingredientes, la lista debe estar vacía");
     }
 
-    // --- EP 11: USUARIO POPULAR ---
+    // USUARIO POPULAR
 
     @Test
     public void usuarioPopularPositivoTest() {
@@ -73,7 +73,7 @@ public class EstadisticasServiceTest {
         Usuario u = crearUsuario("pro@test.com");
         Receta r = crearReceta("Receta Popular", u);
 
-        // Simulamos un Like
+        // simulamos un like
         MeGusta like = new MeGusta();
         like.setUsuario(u);
         like.setReceta(r);
@@ -93,12 +93,11 @@ public class EstadisticasServiceTest {
         // WHEN: No hay likes ni usuarios
         Map<String, Object> popular = estadisticasService.usuarioPopular();
 
-        // THEN: Dependiendo de tu implementación, puede ser null o un mapa vacío
-        // Ajusta esto según lo que devuelva tu service (normalmente null si no hay resultados)
+
         assertTrue(popular == null || popular.isEmpty());
     }
 
-    // --- MÉTODOS DE AYUDA (BLINDADOS) ---
+    //MÉTODOS DE AYUDA
 
     private Usuario crearUsuario(String email) {
         Usuario u = new Usuario();

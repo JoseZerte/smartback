@@ -43,7 +43,7 @@ public class UsuarioServiceTest {
         u.setEmail("borrar@mail.com");
         Usuario guardado = service.guardar(u);
 
-        // Usamos el ID generado
+        // usamos el ID generado
         int idABorrar = guardado.getId();
 
         // WHEN
@@ -74,7 +74,7 @@ public class UsuarioServiceTest {
 
         // THEN
         assertNotNull(lista);
-        // Usamos >= 2 por si ya hay datos previos en la BD de pruebas
+        // usamos >= 2 por si ya hay datos previos en la BD de pruebas
         assertTrue(lista.size() >= 2, "La lista debería tener al menos 2 usuarios");
     }
 
@@ -88,16 +88,16 @@ public class UsuarioServiceTest {
         u1.setContraseña("pass123");
         service.guardar(u1);
 
-        // WHEN: Intentamos registrar otro con el mismo email (caso negativo)
+        // WHEN: intentamos registrar otro con el mismo email (caso negativo)
         Usuario u2 = new Usuario();
         u2.setNombre("User2");
         u2.setEmail("duplicado@mail.com"); // Email idéntico
         u2.setContraseña("otraPass");
 
-        // THEN: El sistema debería lanzar una excepción de integridad de datos
+        // THEN: lanza una excepcion
         assertThrows(org.springframework.dao.DataIntegrityViolationException.class, () -> {
             service.guardar(u2);
-        }, "Debería fallar porque el email debe ser único en la base de datos");
+        }, "Debería fallar porque el email debe ser unico en la base de datos");
     }
 
 

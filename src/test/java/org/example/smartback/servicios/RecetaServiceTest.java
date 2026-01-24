@@ -29,7 +29,7 @@ public class RecetaServiceTest {
     @Autowired
     private RecetaRepository recetaRepository;
 
-    // --- EP 2: CREAR RECETA (POST /recetas) ---
+    // CREAR RECETA
 
     @Test
     public void crearRecetaPositivoTest() {
@@ -57,7 +57,7 @@ public class RecetaServiceTest {
 
     @Test
     public void crearRecetaNegativoTest() {
-        // GIVEN: Una receta totalmente vacía (sin título ni descripción)
+        // GIVEN: Una receta totalmente vacia
         Receta recetaInvalida = new Receta();
 
         // THEN: El servicio debe petar al intentar guardar en el repo
@@ -66,7 +66,7 @@ public class RecetaServiceTest {
         });
     }
 
-    // --- EP 3: FILTROS (GET /recetas con filtros) ---
+
 
     @Test
     public void buscarFiltroPositivoTest() {
@@ -85,14 +85,14 @@ public class RecetaServiceTest {
 
     @Test
     public void buscarFiltroNegativoTest() {
-        // WHEN: Buscamos algo que no existe
+        // WHEN: busca algo que no existe
         List<Receta> resultados = recetaService.buscarRecetasConFiltros("Klingon", null, null);
 
         // THEN
         assertTrue(resultados.isEmpty(), "La lista debe estar vacía");
     }
 
-    // --- EP 4: DETALLE (GET /recetas/{id}) ---
+
 
     @Test
     public void obtenerDetallePositivoTest() {
@@ -111,14 +111,14 @@ public class RecetaServiceTest {
 
     @Test
     public void obtenerDetalleNegativoTest() {
-        // WHEN: Buscamos un ID que no existe
+        // WHEN: busca un ID que no existe
         Receta encontrada = recetaService.obtenerPorId(9999);
 
         // THEN
         assertNull(encontrada);
     }
 
-    // --- MÉTODOS DE APOYO (Para evitar errores de campos nulos) ---
+
 
     private void completarDatosReceta(Receta r, String titulo, Usuario u, Categoria c) {
         r.setTitulo(titulo);
@@ -127,7 +127,6 @@ public class RecetaServiceTest {
         r.setTiempo_preparacion("20 min");
         r.setTipo_dieta("Estándar");
         r.setImagen("imagen.jpg");
-        // ESTA LÍNEA ES LA QUE FALTA:
         r.setFecha_creacion(java.time.LocalDateTime.now());
         r.setUsuario(u);
         r.setCategoria(c);

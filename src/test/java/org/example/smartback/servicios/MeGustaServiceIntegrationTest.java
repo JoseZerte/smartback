@@ -33,10 +33,10 @@ public class MeGustaServiceIntegrationTest {
     @InjectMocks
     private MeGustaService meGustaService;
 
-    // --- TEST UNITARIO 7: MARCAR FAVORITA (CASO POSITIVO) ---
+    // MARCAR FAVORITA
     @Test
     public void marcarFavoritaPositivoTest() {
-        // GIVEN: Usuario y receta existen, y no es favorita todavía
+        // GIVEN: usuario y receta existen, y no es favorita todavía
         Usuario u = new Usuario();
         Receta r = new Receta();
 
@@ -44,18 +44,18 @@ public class MeGustaServiceIntegrationTest {
         when(recetaRepository.findById(10)).thenReturn(Optional.of(r));
         when(meGustaRepository.findByUsuarioIdAndRecetaId(1, 10)).thenReturn(null);
 
-        // WHEN: Ejecutamos la acción
+        // WHEN: ejecutamos la acción
         String resultado = meGustaService.marcarComoFavorita(1, 10);
 
-        // THEN: Verificamos el mensaje y que se guardó
+        // THEN: verificamos el mensaje y que se guardó
         assertEquals("Receta marcada como favorita", resultado);
         verify(meGustaRepository, times(1)).save(any(MeGusta.class));
     }
 
-    // --- TEST UNITARIO 8: MARCAR FAVORITA (CASO NEGATIVO - DUPLICADO) ---
+    // MARCAR FAVORITA
     @Test
     public void marcarFavoritaDuplicadaTest() {
-        // GIVEN: El repositorio ya encuentra un registro previo
+        // GIVEN: el repositorio ya encuentra un registro previo
         Usuario u = new Usuario();
         Receta r = new Receta();
         MeGusta yaExistente = new MeGusta();
@@ -67,15 +67,15 @@ public class MeGustaServiceIntegrationTest {
         // WHEN
         String resultado = meGustaService.marcarComoFavorita(1, 10);
 
-        // THEN: Verificamos que devuelve el aviso y NO guarda nada nuevo
+        // THEN: verificamos que devuelve el aviso y NO guarda nada nuevo
         assertEquals("Ya es favorita", resultado);
         verify(meGustaRepository, never()).save(any(MeGusta.class));
     }
 
-    // --- TEST UNITARIO 9: MARCAR FAVORITA (CASO NEGATIVO - NO EXISTE) ---
+    // MARCAR FAVORITA
     @Test
     public void marcarFavoritaNoEncontradaTest() {
-        // GIVEN: El usuario no existe en la base de datos
+        // GIVEN: el usuario no existe en la base de datos
         when(usuarioRepository.findById(999)).thenReturn(Optional.empty());
 
         // WHEN

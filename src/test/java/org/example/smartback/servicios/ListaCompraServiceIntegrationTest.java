@@ -32,10 +32,10 @@ public class ListaCompraServiceIntegrationTest {
     @InjectMocks
     private ListaCompraService listaCompraService;
 
-    // --- TEST UNITARIO 10: GENERAR LISTA (CASO POSITIVO - NUEVA LISTA) ---
+    // GENERAR LISTA
     @Test
     public void generarListaNuevaTest() {
-        // GIVEN: Una receta con un ingrediente y un usuario sin lista previa
+        // GIVEN: una receta con un ingrediente y un usuario sin lista previa
         Usuario usuario = new Usuario();
         usuario.setId(1);
 
@@ -58,14 +58,14 @@ public class ListaCompraServiceIntegrationTest {
         // THEN
         assertNotNull(resultado);
         assertEquals("Mi Lista de Compra", resultado.getNombre());
-        verify(listaCompraRepository, times(1)).save(any(ListaCompra.class)); // Se creó la lista
-        verify(itemListaCompraRepository, times(1)).save(any(ItemListaCompra.class)); // Se guardó el ítem
+        verify(listaCompraRepository, times(1)).save(any(ListaCompra.class));// se crea la lista
+        verify(itemListaCompraRepository, times(1)).save(any(ItemListaCompra.class)); // se guarda el ítem
     }
 
-    // --- TEST UNITARIO 11: GENERAR LISTA (CASO POSITIVO - REUTILIZAR LISTA) ---
+    // GENERAR LISTA
     @Test
     public void generarListaExistenteTest() {
-        // GIVEN: El usuario ya tiene una lista creada
+        // GIVEN: el usuario ya tiene una lista creada
         Receta receta = new Receta();
         receta.setIngredientesReceta(new HashSet<>());
 
@@ -84,7 +84,7 @@ public class ListaCompraServiceIntegrationTest {
         verify(listaCompraRepository, never()).save(any(ListaCompra.class)); // NO se crea otra lista
     }
 
-    // --- TEST UNITARIO 12: GENERAR LISTA (CASO NEGATIVO - RECETA INEXISTENTE) ---
+    //GENERAR LISTA
     @Test
     public void generarListaRecetaNoExisteTest() {
         // GIVEN: La receta con ID 99 no existe

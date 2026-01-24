@@ -28,7 +28,7 @@ public class HistorialServiceTest {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    // --- EP 8 & 9: HISTORIAL DE COCINADO ---
+    // HISTORIAL DE COCINADO
 
     @Test
     public void registrarHistorialPositivoTest() {
@@ -40,7 +40,7 @@ public class HistorialServiceTest {
         h.setUsuario(u);
         h.setReceta(r);
         h.setComentario("Salieron perfectas");
-        // Aseguramos fecha si el servicio no la pone automáticamente
+        // aseguramos fecha si el servicio no la pone automáticamente
         if(h.getFecha_cocinado() == null) h.setFecha_cocinado(LocalDateTime.now());
 
         // WHEN
@@ -58,7 +58,7 @@ public class HistorialServiceTest {
         Receta r1 = crearReceta("Receta 1", u);
         Receta r2 = crearReceta("Receta 2", u);
 
-        // Registramos dos entradas en el historial
+        // registramos dos entradas en el historial
         registrarEntrada(u, r1, "Primera vez");
         registrarEntrada(u, r2, "Segunda vez");
 
@@ -71,7 +71,7 @@ public class HistorialServiceTest {
 
     @Test
     public void listarHistorialVacioTest() {
-        // GIVEN: Un usuario nuevo sin historial
+        // GIVEN: un usuario nuevo sin historial
         Usuario u = crearUsuario("nuevo_h@test.com");
 
         // WHEN
@@ -83,16 +83,16 @@ public class HistorialServiceTest {
 
     @Test
     public void registrarHistorialInvalidoTest() {
-        // GIVEN: Un historial sin usuario ni receta (campos obligatorios)
+        // GIVEN: un historial sin usuario ni receta (campos obligatorios)
         Historial hInvalido = new Historial();
 
-        // THEN: Debería lanzar una excepción de integridad de datos
+        // THEN: deberia lanzar una excepcion
         assertThrows(Exception.class, () -> {
             historialService.guardar(hInvalido);
         });
     }
 
-    // --- MÉTODOS DE AYUDA (REUTILIZABLES Y SEGUROS) ---
+    // (REUTILIZABLES Y SEGUROS) ---
 
     private void registrarEntrada(Usuario u, Receta r, String comentario) {
         Historial h = new Historial();

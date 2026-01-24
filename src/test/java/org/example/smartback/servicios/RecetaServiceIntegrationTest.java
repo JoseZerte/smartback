@@ -36,7 +36,7 @@ public class RecetaServiceIntegrationTest {
     @InjectMocks
     private RecetaService recetaService;
 
-    // --- TEST UNITARIO 4: CREAR RECETA (CASO POSITIVO - LÓGICA COMPLEJA) ---
+    // CREAR RECETA
     @Test
     public void crearRecetaCompletaTest() {
         // GIVEN: Una receta y un DTO de ingrediente
@@ -49,39 +49,39 @@ public class RecetaServiceIntegrationTest {
         ingDto.setUnidad("Kg");
         List<RecetaDTO.IngredienteDTO> ingredientesDto = List.of(ingDto);
 
-        // Simulamos el guardado de la receta
+        // simulamos el guardado de la receta
         when(recetaRepository.save(any(Receta.class))).thenReturn(receta);
-        // Simulamos que el ingrediente no existe y se crea uno nuevo
+        // simulamos que el ingrediente no existe y se crea uno nuevo
         when(ingredienteRepository.findByNombre("Tomate")).thenReturn(Optional.empty());
         when(ingredienteRepository.save(any(Ingrediente.class))).thenAnswer(i -> i.getArgument(0));
 
-        // WHEN: Ejecutamos la creación
+        // WHEN: ejecutamos la creacin
         Receta resultado = recetaService.crearRecetaConIngredientes(receta, ingredientesDto);
 
-        // THEN: Validamos la lógica relacional
+        // THEN: validamos la logica
         assertNotNull(resultado);
-        verify(recetaRepository, times(1)).save(receta); // Guardó la receta
-        verify(ingredienteRepository, times(1)).save(any(Ingrediente.class)); // Creó el ingrediente
-        verify(recetaIngredienteRepository, times(1)).save(any(RecetaIngrediente.class)); // Creó la relación
+        verify(recetaRepository, times(1)).save(receta); // Guarda la receta
+        verify(ingredienteRepository, times(1)).save(any(Ingrediente.class)); // Crea el ingrediente
+        verify(recetaIngredienteRepository, times(1)).save(any(RecetaIngrediente.class)); // Crea la relación
     }
 
-    // --- TEST UNITARIO 5: BUSCAR CON FILTROS (CASO POSITIVO) ---
+    // BUSCAR CON FILTROS
     @Test
     public void buscarPorCategoriaTest() {
-        // GIVEN: Simulamos que existen recetas en una categoría
+        // GIVEN: simulamos que existen recetas en una categoría
         List<Receta> recetasFalsas = List.of(new Receta(), new Receta());
         when(recetaRepository.findByCategoriaNombre("Italiana")).thenReturn(recetasFalsas);
 
-        // WHEN: Filtramos solo por categoría
+        // WHEN: filtramos solo por categoría
         List<Receta> resultado = recetaService.buscarRecetasConFiltros("Italiana", null, null);
 
-        // THEN: Verificamos que llamó al método correcto del repositorio
+        // THEN: verificamos
         assertEquals(2, resultado.size());
         verify(recetaRepository, times(1)).findByCategoriaNombre("Italiana");
         verify(recetaRepository, never()).findAll(); // No debería traer todas si hay filtro
     }
 
-    // --- TEST UNITARIO 6: VER DETALLE (CASO NEGATIVO) ---
+    //VER DETALLE
     @Test
     public void obtenerRecetaInexistenteTest() {
         // GIVEN: El ID 500 no existe

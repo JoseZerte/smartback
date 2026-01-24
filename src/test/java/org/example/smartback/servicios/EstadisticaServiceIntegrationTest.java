@@ -29,14 +29,14 @@ public class EstadisticaServiceIntegrationTest {
     @InjectMocks
     private EstadisticasService estadisticasService;
 
-    // --- TEST UNITARIO 16: TOP 5 INGREDIENTES (CASO POSITIVO) ---
+    // TOP 5 INGREDIENTES
     @Test
     public void top5IngredientesPositivoTest() {
-        // GIVEN: Creamos ingredientes
+        // GIVEN: creamos ingredientes
         Ingrediente ing1 = new Ingrediente();
         ing1.setNombre("Sal");
 
-        // Relación para Sal (ID 1)
+        // relación para Sal (ID 1)
         RecetaIngrediente ri1 = new RecetaIngrediente();
         ri1.setId(1);
         Set<RecetaIngrediente> recetasSal = new HashSet<>();
@@ -46,7 +46,7 @@ public class EstadisticaServiceIntegrationTest {
         Ingrediente ing2 = new Ingrediente();
         ing2.setNombre("Aceite");
 
-        // Relaciones para Aceite (ID distintos para que el Set los cuente)
+        // relaciones para Aceite (ID distintos para que el Set los cuente)
         RecetaIngrediente ri2 = new RecetaIngrediente();
         ri2.setId(2);
         RecetaIngrediente ri3 = new RecetaIngrediente();
@@ -57,7 +57,7 @@ public class EstadisticaServiceIntegrationTest {
         recetasAceite.add(ri3);
         ing2.setRecetas(recetasAceite); // Aceite tiene 2
 
-        // IMPORTANTE: Los pasamos al mock
+        // Los pasamos al mock
         when(ingredienteRepository.findAll()).thenReturn(Arrays.asList(ing1, ing2));
 
         // WHEN
@@ -69,7 +69,7 @@ public class EstadisticaServiceIntegrationTest {
         assertEquals("Aceite", resultado.get(0).get("ingrediente"), "Aceite debe ser el primero por tener más recetas");
         assertEquals(2, resultado.get(0).get("recetasUsadas"));
     }
-    // --- TEST UNITARIO 17: USUARIO POPULAR (CASO POSITIVO) ---
+    // USUARIO POPULAR
     @Test
     public void usuarioPopularPositivoTest() {
         // GIVEN: Usuarios y likes simulados
@@ -82,7 +82,7 @@ public class EstadisticaServiceIntegrationTest {
 
         when(meGustaRepository.findAll()).thenReturn(Arrays.asList(l1, l2, l3));
 
-        // WHEN: Buscamos el usuario popular
+        // WHEN: buscamos el usuario popular
         Map<String, Object> resultado = estadisticasService.usuarioPopular();
 
         // THEN: El ganador debe ser Chef Pro
@@ -91,10 +91,10 @@ public class EstadisticaServiceIntegrationTest {
         assertEquals(2L, resultado.get("likesTotales"));
     }
 
-    // --- TEST UNITARIO 18: CASO NEGATIVO (SIN DATOS) ---
+    // CASO NEGATIVO
     @Test
     public void estadisticasVaciasTest() {
-        // GIVEN: Listas vacías en los repositorios
+        // GIVEN: Listas vacias en los repositorios
         when(ingredienteRepository.findAll()).thenReturn(new ArrayList<>());
         when(meGustaRepository.findAll()).thenReturn(new ArrayList<>());
 
@@ -102,7 +102,7 @@ public class EstadisticaServiceIntegrationTest {
         List<Map<String, Object>> top = estadisticasService.top5Ingredientes();
         Map<String, Object> popular = estadisticasService.usuarioPopular();
 
-        // THEN: No debe petar, debe devolver estructuras vacías
+        // THEN: debe devolver estructuras vacias
         assertTrue(top.isEmpty());
         assertTrue(popular.isEmpty());
         verify(ingredienteRepository).findAll();

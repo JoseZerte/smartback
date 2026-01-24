@@ -34,7 +34,7 @@ public class ListaCompraServiceTest {
     @Autowired
     private RecetaIngredienteRepository recetaIngredienteRepository;
 
-    // ESTO ES LO QUE FALTABA (La inyección del repositorio de items)
+
     @Autowired
     private ItemListaCompraRepository itemListaCompraRepository;
 
@@ -79,7 +79,7 @@ public class ListaCompraServiceTest {
         ri.setUnidad("piezas");
         recetaIngredienteRepository.save(ri);
 
-        // AQUÍ EL TRUCO: Añadimos manualmente el ingrediente a la receta en memoria
+        // añadimos manualmente el ingrediente a la receta en memoria
         rec.getIngredientesReceta().add(ri);
 
         // 2. WHEN
@@ -90,7 +90,7 @@ public class ListaCompraServiceTest {
 
         List<ItemListaCompra> itemsEnDB = itemListaCompraRepository.findAll();
 
-        // Ahora sí: esperamos que NO esté vacía
+        // esperamos que NO esté vacía
         assertFalse(itemsEnDB.isEmpty(), "Deberían haberse guardado items en la base de datos");
 
         assertEquals("Tomate", itemsEnDB.get(0).getIngrediente().getNombre());
@@ -104,7 +104,7 @@ public class ListaCompraServiceTest {
         user.setContraseña("123");
         usuarioRepository.save(user);
 
-        // Aquí usamos 999 porque sabemos que no existe esa receta
+        //aquí usamos 999 porque sabemos que no existe esa receta
         ListaCompra resultado = listaCompraService.generarListaDesdeReceta(999, user.getId());
 
         assertNull(resultado, "Debería devolver null si la receta no existe");

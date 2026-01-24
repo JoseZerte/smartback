@@ -28,7 +28,7 @@ public class UsuarioServiceIntegrationTest {
     @InjectMocks
     private UsuarioService usuarioService;
 
-    // --- TEST UNITARIO 1: REGISTRAR (CASO POSITIVO) ---
+    // REGISTRAR (CASO POSITIVO) ---
     @Test
     public void guardarUsuarioPositivoTest() {
         // GIVEN: Usuario con contraseña plana
@@ -40,20 +40,20 @@ public class UsuarioServiceIntegrationTest {
         when(passwordEncoder.encode("12345")).thenReturn("$2a$10$cifrado");
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // WHEN: Ejecutamos el método
+        // WHEN: Ejecutamos el guardado
         Usuario resultado = usuarioService.guardar(usuario);
 
-        // THEN: Validamos que el método del servicio cumplió su función
+        // THEN: Validamos que el metodo cunmpliio su fuincion
         assertNotNull(resultado);
         assertEquals("$2a$10$cifrado", resultado.getContraseña());
-        verify(passwordEncoder, times(1)).encode("12345"); // Verifica lógica de cifrado
-        verify(usuarioRepository, times(1)).save(usuario); // Verifica persistencia
+        verify(passwordEncoder, times(1)).encode("12345");
+        verify(usuarioRepository, times(1)).save(usuario);
     }
 
-    // --- TEST UNITARIO 2: REGISTRAR (CASO NEGATIVO / BORDE) ---
+    // REGISTRAR (CASO NEGATIVO / BORDE) ---
     @Test
     public void guardarUsuarioSinPasswordTest() {
-        // GIVEN: Usuario con contraseña nula
+        // GIVEN: usuario con contraseña nula
         Usuario usuario = new Usuario();
         usuario.setNombre("SinPass");
         usuario.setContraseña(null);
@@ -69,16 +69,16 @@ public class UsuarioServiceIntegrationTest {
         verify(usuarioRepository).save(usuario);
     }
 
-    // --- TEST UNITARIO 3: OBTENER POR ID (CASO NEGATIVO) ---
+    // OBTENER POR ID (CASO NEGATIVO)
     @Test
     public void obtenerUsuarioInexistenteTest() {
-        // GIVEN: El repositorio no encuentra nada para el ID 99
+        // GIVEN: repositorio no encuentra nada para el ID 99
         when(usuarioRepository.findById(99)).thenReturn(Optional.empty());
 
-        // WHEN: Consultamos el servicio
+        // WHEN: consultamos el servicio
         Usuario resultado = usuarioService.obtenerPorId(99);
 
-        // THEN: Comprobamos que el caso de uso devuelve null correctamente
+        // THEN: comprobamos que el caso de uso devuelve null correctamente
         assertNull(resultado);
         verify(usuarioRepository, times(1)).findById(99);
     }
