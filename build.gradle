@@ -50,3 +50,7 @@ test {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+bootJar {
+    archiveClassifier = ''
+}
