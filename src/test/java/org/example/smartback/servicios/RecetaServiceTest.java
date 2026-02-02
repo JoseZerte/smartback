@@ -118,8 +118,6 @@ public class RecetaServiceTest {
         assertNull(encontrada);
     }
 
-
-
     private void completarDatosReceta(Receta r, String titulo, Usuario u, Categoria c) {
         r.setTitulo(titulo);
         r.setDescripcion("Descripción obligatoria");

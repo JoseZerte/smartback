@@ -50,7 +50,7 @@ public class UsuarioServiceIntegrationTest {
         verify(usuarioRepository, times(1)).save(usuario);
     }
 
-    // REGISTRAR (CASO NEGATIVO / BORDE) ---
+    // REGISTRAR caso negativo
     @Test
     public void guardarUsuarioSinPasswordTest() {
         // GIVEN: usuario con contraseña nula
