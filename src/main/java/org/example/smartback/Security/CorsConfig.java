@@ -10,7 +10,13 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:4200")
+                // Permitimos localhost (PC) y tu IP (Móvil)
+                .allowedOriginPatterns(
+                        "http://localhost:4200",
+                        "http://192.168.0.193:4200",
+                        "http://192.168.0.193:8100", // Por si Ionic usa el puerto 8100
+                        "http://192.168.0.193:*"      // Comodín para cualquier puerto en tu IP
+                )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
