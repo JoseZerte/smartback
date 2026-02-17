@@ -27,7 +27,8 @@ public class Receta {
     @Column(nullable = false)
     private String descripcion;
 
-    @Column(nullable = false)
+    @Lob
+    @Column(name = "imagen", columnDefinition = "LONGTEXT", nullable = false)
     private String imagen;
 
     @ManyToOne
